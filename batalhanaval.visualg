@@ -1,0 +1,297 @@
+algoritmo "Batalha Naval - A contra B"
+
+var
+   mar: vetor[1..20,1..10] de inteiro
+   tiros: vetor[1..20,1..10] de inteiro
+   vida: vetor[1..6] de inteiro
+   restantes: vetor[1..2] de inteiro
+   nomes: vetor[1..2] de caractere
+   i,j,equipe,n,l,c,d,k,x,y,alvo: inteiro
+   jogador,inimigo,base,indice,numero,vencedor: inteiro
+   valido,secreto: logico
+   entrada,mensagem: caractere
+
+procedimento lerNumero()
+inicio
+   repita
+      leia(entrada)
+      numero <- 0
+
+      escolha entrada
+         caso "1"
+            numero <- 1
+         caso "2"
+            numero <- 2
+         caso "3"
+            numero <- 3
+         caso "4"
+            numero <- 4
+         caso "5"
+            numero <- 5
+         caso "6"
+            numero <- 6
+         caso "7"
+            numero <- 7
+         caso "8"
+            numero <- 8
+         caso "9"
+            numero <- 9
+         caso "10"
+            numero <- 10
+      fimescolha
+
+      se numero=0 entao
+         escreval("Entrada invalida! Digite de 1 a 10:")
+      fimse
+   ate numero>0
+fimprocedimento
+
+procedimento confirmar()
+inicio
+   repita
+      escreval("Digite 1 para continuar:")
+      lerNumero()
+   ate numero=1
+fimprocedimento
+
+procedimento tabela()
+var
+   a,b,r: inteiro
+inicio
+   limpatela
+   escreval("")
+   escreval("    =========================================")
+   escreval("          B A T A L H A   N A V A L")
+   escreval("               EQUIPE A x EQUIPE B")
+   escreval("    =========================================")
+
+   se secreto entao
+      escreval("    POSICIONAMENTO: ",nomes[equipe])
+   senao
+      escreval("    ATACANTE: ",nomes[jogador])
+      escreval("    ALVO: ",nomes[inimigo])
+   fimse
+
+   escreval("")
+   escreval("      1   2   3   4   5   6   7   8   9  10")
+   escreval("    +---+---+---+---+---+---+---+---+---+---+")
+
+   para a de 1 ate 10 faca
+      r <- base+a
+
+      se a<10 entao
+         escreva(" ")
+      fimse
+      escreva(a,"  |")
+
+      para b de 1 ate 10 faca
+         se secreto entao
+            se mar[r,b]=0 entao
+               escreva(" . |")
+            senao
+               escreva(" N |")
+            fimse
+         senao
+            escolha tiros[r,b]
+               caso 0
+                  escreva(" . |")
+               caso 1
+                  escreva(" ~ |")
+               caso 2
+                  escreva(" X |")
+            fimescolha
+         fimse
+      fimpara
+
+      escreval("")
+      escreval("    +---+---+---+---+---+---+---+---+---+---+")
+   fimpara
+
+   escreval("")
+
+   se secreto entao
+      escreval("    N = NAVIO | . = LIVRE")
+      escreval("    O adversario nao deve olhar esta tela.")
+   senao
+      escreval("    X = ACERTO | ~ = AGUA | . = SEM TIRO")
+      escreval("")
+      escreval("    NAVIOS RESTANTES")
+      escreval("    Equipe A: ",restantes[1])
+      escreval("    Equipe B: ",restantes[2])
+   fimse
+
+   escreval("    -----------------------------------------")
+   escreval("    ",mensagem)
+   escreval("    =========================================")
+   escreval("")
+fimprocedimento
+
+inicio
+   nomes[1] <- "EQUIPE A"
+   nomes[2] <- "EQUIPE B"
+
+   restantes[1] <- 3
+   restantes[2] <- 3
+
+   para i de 1 ate 20 faca
+      para j de 1 ate 10 faca
+         mar[i,j] <- 0
+         tiros[i,j] <- 0
+      fimpara
+   fimpara
+
+   secreto <- verdadeiro
+
+   para equipe de 1 ate 2 faca
+      base <- (equipe-1)*10
+
+      limpatela
+      escreval("============================================")
+      escreval("PREPARACAO DA ",nomes[equipe])
+      escreval("A outra equipe deve se afastar da tela.")
+      escreval("============================================")
+      confirmar()
+
+      mensagem <- "Posicione seus tres navios."
+
+      para n de 1 ate 3 faca
+         indice <- (equipe-1)*3+n
+         vida[indice] <- n
+
+         repita
+            tabela()
+            escreval("NAVIO DE ",n," CASA(S)")
+
+            escreval("Linha inicial [1 a 10]:")
+            lerNumero()
+            l <- numero
+
+            escreval("Coluna inicial [1 a 10]:")
+            lerNumero()
+            c <- numero
+
+            repita
+               escreval("Direcao [1=horizontal / 2=vertical]:")
+               lerNumero()
+               d <- numero
+
+               se (d<>1) e (d<>2) entao
+                  escreval("Direcao invalida! Escolha 1 ou 2.")
+               fimse
+            ate (d=1) ou (d=2)
+
+            valido <- verdadeiro
+
+            para k de 0 ate n-1 faca
+               x <- l
+               y <- c
+
+               se d=1 entao
+                  y <- c+k
+               senao
+                  x <- l+k
+               fimse
+
+               se (x<1) ou (x>10) ou (y<1) ou (y>10) entao
+                  valido <- falso
+               senao
+                  se mar[base+x,y]<>0 entao
+                     valido <- falso
+                  fimse
+               fimse
+            fimpara
+
+            se nao valido entao
+               mensagem <- "INVALIDO: limite ou sobreposicao."
+            fimse
+         ate valido
+
+         para k de 0 ate n-1 faca
+            se d=1 entao
+               mar[base+l,c+k] <- n
+            senao
+               mar[base+l+k,c] <- n
+            fimse
+         fimpara
+
+         mensagem <- "Navio posicionado!"
+      fimpara
+
+      mensagem <- "Frota pronta! Confira e esconda a tela."
+      tabela()
+      confirmar()
+      limpatela
+   fimpara
+
+   secreto <- falso
+   jogador <- 1
+   vencedor <- 0
+
+   enquanto vencedor=0 faca
+      inimigo <- 3-jogador
+      base <- (inimigo-1)*10
+
+      limpatela
+      escreval("============================================")
+      escreval("VEZ DA ",nomes[jogador])
+      escreval("============================================")
+      confirmar()
+
+      mensagem <- "Escolha uma posicao do adversario."
+      valido <- falso
+
+      repita
+         tabela()
+
+         escreval("Linha do ataque [1 a 10]:")
+         lerNumero()
+         l <- numero
+
+         escreval("Coluna do ataque [1 a 10]:")
+         lerNumero()
+         c <- numero
+
+         se tiros[base+l,c]<>0 entao
+            mensagem <- "TIRO REPETIDO! Escolha outra casa."
+         senao
+            valido <- verdadeiro
+         fimse
+      ate valido
+
+      alvo <- mar[base+l,c]
+
+      se alvo=0 entao
+         tiros[base+l,c] <- 1
+         mensagem <- "~~~ AGUA! ~~~"
+      senao
+         tiros[base+l,c] <- 2
+         indice <- (inimigo-1)*3+alvo
+         vida[indice] <- vida[indice]-1
+
+         se vida[indice]=0 entao
+            restantes[inimigo] <- restantes[inimigo]-1
+            mensagem <- "*** ACERTOU E AFUNDOU! ***"
+         senao
+            mensagem <- ">>> ACERTOU! Ainda nao afundou."
+         fimse
+      fimse
+
+      tabela()
+      escreval("TIRO: linha ",l," / coluna ",c)
+      escreval("")
+
+      se restantes[inimigo]=0 entao
+         vencedor <- jogador
+      senao
+         confirmar()
+         jogador <- inimigo
+      fimse
+   fimenquanto
+
+   escreval("")
+   escreval("    =========================================")
+   escreval("                  FIM DE JOGO")
+   escreval("             VITORIA DA ",nomes[vencedor])
+   escreval("    =========================================")
+
+fimalgoritmo
